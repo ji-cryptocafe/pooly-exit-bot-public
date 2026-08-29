@@ -1,0 +1,14 @@
+{
+  "name": "pooly-exit-bot",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "bot": "node bot/exit-bot.mjs",
+    "watch": "node bot/exit-bot.mjs --dry-run"
+  },
+  "dependencies": {
+    "viem": "^2.21.0",
+    "dotenv": "^16.4.5"
+  }
+}

@@ -1,0 +1,13 @@
+.env
+out/
+cache/
+node_modules/
+broadcast/
+pv.json
+pv_src.txt
+
+# runtime
+bot.log
+
+# macOS
+.DS_Store
