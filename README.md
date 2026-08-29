@@ -1,118 +1,129 @@
 # pooly-exit-bot
 
-> 💚 **Want to support me?** Spread the word about my crypto-tax software
-> **[CryptoCafeTax](https://cryptocafetax.de)** — freely testable at
-> **[app.cryptocafetax.de](https://app.cryptocafetax.de)**. Need your country added
-> for tax support? Reach out and let me know.
+**🇩🇪 Deutsch · 🇬🇧 [English](README.en.md)**
 
-A small bot that automatically rescues money stuck in a **przUSDC** position
-(PoolTogether V5 "Prize USDC – Moonwell") on the Base network.
+> 💚 **Du möchtest mich unterstützen?** Erzähl anderen von meiner Krypto-Steuer-Software
+> **[CryptoCafeTax](https://cryptocafetax.de)** — kostenlos testbar unter
+> **[app.cryptocafetax.de](https://app.cryptocafetax.de)**. Dein Land fehlt bei der
+> Steuer-Unterstützung? Melde dich, dann nehme ich es auf.
 
-If your withdraw button just reverts and your funds feel frozen, this is for you.
+Ein kleiner Bot, der automatisch Geld rettet, das in einer **przUSDC**-Position
+(PoolTogether V5 „Prize USDC – Moonwell") im Base-Netzwerk feststeckt.
 
----
-
-## What's going on (in plain English)
-
-Your USDC is deposited in a savings pool. That pool lends the money out to a
-lending market (Moonwell). Right now **almost everyone has borrowed and nobody
-has repaid**, so there is no cash sitting in the market to pay you back. That's
-why "withdraw" fails — the money isn't gone, it's just *unavailable this second*.
-
-Cash briefly reappears whenever **someone repays a loan or adds new funds** — but
-it vanishes again in seconds because other people are waiting for it too.
-
-**This bot watches the market around the clock and grabs your share the instant
-cash appears** — faster than you could ever do by hand. It keeps nibbling away,
-a little at a time, until your whole position is out.
+Wenn dein „Withdraw"-Button nur noch fehlschlägt und dein Geld eingefroren wirkt,
+ist das hier für dich.
 
 ---
 
-## Is my money safe? (yes — here's why)
+## Was ist da los? (einfach erklärt)
 
-You never hand your funds or your main wallet's password to anything.
+Dein USDC liegt in einem Spar-Pool. Dieser Pool verleiht das Geld an einen
+Kreditmarkt (Moonwell). Im Moment **haben fast alle geliehen und kaum jemand
+zurückgezahlt** — deshalb ist kein Bargeld im Markt, um dich auszuzahlen. Genau
+darum schlägt „Withdraw" fehl: Das Geld ist nicht weg, es ist nur *in diesem
+Moment nicht verfügbar*.
 
-- You sign **one** approval, once, from the wallet that holds the money.
-- That approval lets a tiny, purpose-built contract move **only your stuck
-  position**, and **only** to an address you choose (your own wallet, or a cold
-  wallet). It physically cannot send your money anywhere else, and it cannot be
-  changed after setup.
-- The bot itself runs on a **separate throwaway key** that only ever pays gas
-  fees. If someone stole that key tomorrow, all they'd get is a few dollars of
-  leftover gas — never your position.
+Bargeld taucht kurz wieder auf, sobald **jemand einen Kredit zurückzahlt oder neues
+Geld einzahlt** — verschwindet aber innerhalb von Sekunden wieder, weil auch andere
+darauf warten.
 
-The full security reasoning is in **[TECHNICAL.md](TECHNICAL.md)**.
-
----
-
-## What you'll need
-
-- A computer (Mac, Windows, or Linux) you can leave running.
-- The wallet (e.g. MetaMask) that holds the stuck przUSDC.
-- About **0.01 ETH on the Base network** for gas — a few dollars.
-- 20–30 minutes, once.
-
-You do **not** need to be a programmer. The detailed guide holds your hand
-through every command.
+**Dieser Bot beobachtet den Markt rund um die Uhr und schnappt sich deinen Anteil in
+dem Augenblick, in dem Bargeld auftaucht** — schneller, als du es je von Hand
+könntest. Er knabbert die Position Stück für Stück ab, bis sie komplett draußen ist.
 
 ---
 
-## How to do it — the short version
+## Ist mein Geld sicher? (ja — und hier ist warum)
 
-Each step below links to the exact commands in **[DEPLOY.md](DEPLOY.md)**.
-Follow that guide top to bottom; this list is just the map.
+Du gibst niemals dein Geld oder das Passwort deiner Haupt-Wallet aus der Hand.
 
-1. **Get the code onto your computer.**
+- Du unterschreibst **eine einzige** Freigabe (Approval), ein einziges Mal, aus der
+  Wallet, die das Geld hält.
+- Diese Freigabe erlaubt einem winzigen, eigens dafür gebauten Contract, **nur deine
+  feststeckende Position** zu bewegen — und **nur** an eine Adresse, die du selbst
+  wählst (deine eigene Wallet oder eine Cold Wallet). Er kann dein Geld an keinen
+  anderen Ort schicken, und daran lässt sich nach der Einrichtung nichts mehr ändern.
+- Der Bot selbst läuft mit einem **separaten Wegwerf-Schlüssel**, der ausschließlich
+  die Gas-Gebühren zahlt. Würde dieser Schlüssel morgen gestohlen, bekäme der Dieb
+  nur ein paar Dollar übrig gebliebenes Gas — niemals deine Position.
+
+Die vollständige Sicherheitsbegründung steht in **[TECHNICAL.md](TECHNICAL.md)**
+(englisch).
+
+---
+
+## Was du brauchst
+
+- Einen Computer (Mac, Windows oder Linux), den du laufen lassen kannst.
+- Die Wallet (z. B. MetaMask), die das feststeckende przUSDC hält.
+- Etwa **0,01 ETH im Base-Netzwerk** für Gas — ein paar Dollar.
+- Einmalig 20–30 Minuten.
+
+Du musst **kein** Programmierer sein. Die ausführliche Anleitung führt dich Befehl
+für Befehl durch alles.
+
+---
+
+## So geht's — die Kurzfassung
+
+Jeder Schritt verweist auf die genauen Befehle in **[DEPLOY.md](DEPLOY.md)**
+(englisch). Folge dieser Anleitung von oben nach unten; diese Liste ist nur die
+Übersicht.
+
+1. **Hol den Code auf deinen Computer.**
    ```bash
    git clone https://github.com/ji-cryptocafe/pooly-exit-bot-public.git
    cd pooly-exit-bot-public
    npm install
    ```
 
-2. **Create a throwaway "gas" key.** One command (`./newkey.sh`) makes a brand-new
-   key that can only pay fees. Your real wallet is never involved. → *DEPLOY Step 1*
+2. **Erstelle einen Wegwerf-Schlüssel für Gas.** Ein Befehl (`./newkey.sh`) erzeugt
+   einen brandneuen Schlüssel, der nur Gebühren zahlen kann. Deine echte Wallet ist
+   nie beteiligt. → *DEPLOY Schritt 1*
 
-3. **Fill in the settings.** Copy `.env.example` to `.env` and paste in your wallet
-   address and the network endpoint (a working default is already provided).
-   → *DEPLOY Step 1*
+3. **Trage die Einstellungen ein.** Kopiere `.env.example` nach `.env` und füge deine
+   Wallet-Adresse und den Netzwerk-Endpunkt ein (ein funktionierender Standard ist
+   bereits hinterlegt). → *DEPLOY Schritt 1*
 
-4. **Send a few dollars of ETH** (on Base) to the throwaway key so it can pay gas.
-   → *DEPLOY Step 2*
+4. **Schick ein paar Dollar ETH** (im Base-Netzwerk) an den Wegwerf-Schlüssel, damit
+   er Gas zahlen kann. → *DEPLOY Schritt 2*
 
-5. **Deploy the little rescue contract** with `./deploy.sh`. It shows you every
-   value and waits for you to type `YES` before spending anything. → *DEPLOY Step 3*
+5. **Deploye den kleinen Rettungs-Contract** mit `./deploy.sh`. Er zeigt dir jeden
+   Wert an und wartet, bis du `YES` tippst, bevor irgendetwas ausgegeben wird.
+   → *DEPLOY Schritt 3*
 
-6. **Double-check it, then approve once** from your real wallet, in your browser on
-   Basescan. This is the only time your main wallet signs anything. → *DEPLOY Steps 4–5*
+6. **Prüfe alles doppelt und gib dann einmalig frei** — aus deiner echten Wallet, im
+   Browser auf Basescan. Das ist das einzige Mal, dass deine Haupt-Wallet überhaupt
+   etwas unterschreibt. → *DEPLOY Schritte 4–5*
 
-7. **Start the bot** with `npm run bot` and leave it running. It reports what it's
-   doing, and **shuts itself off automatically** the moment your position is fully
-   recovered. → *DEPLOY Step 6*
+7. **Starte den Bot** mit `npm run bot` und lass ihn laufen. Er meldet, was er tut,
+   und **schaltet sich automatisch ab**, sobald deine Position vollständig gerettet
+   ist. → *DEPLOY Schritt 6*
 
-> Tip: run `npm run watch` first — a safe "dry run" that shows what the bot *would*
-> do without sending any transaction.
-
----
-
-## Will it definitely work?
-
-It gets your money out **as soon as the market has cash to pay you** — and it will
-beat almost anyone doing it manually. But be realistic:
-
-- If borrowers **never** repay, cash never returns, and no bot on earth can help.
-  That part is out of everyone's hands.
-- Other people run similar bots. You can spend a little more on gas priority to win
-  more often (see the tuning notes in [DEPLOY.md](DEPLOY.md)).
-
-This is a tool, not financial advice. Read what it does, verify the contract before
-you approve it, and use it at your own risk.
+> Tipp: Führe zuerst `npm run watch` aus — ein sicherer „Trockenlauf", der zeigt, was
+> der Bot tun *würde*, ohne eine Transaktion zu senden.
 
 ---
 
-## The three docs
+## Funktioniert es garantiert?
 
-| File | For |
+Es holt dein Geld heraus, **sobald der Markt Bargeld hat, um dich auszuzahlen** — und
+ist dabei schneller als fast jeder, der es von Hand versucht. Aber sei realistisch:
+
+- Wenn Kreditnehmer **nie** zurückzahlen, kommt kein Bargeld zurück, und kein Bot der
+  Welt kann helfen. Das liegt in niemandes Hand.
+- Andere lassen ähnliche Bots laufen. Du kannst etwas mehr für die Gas-Priorität
+  ausgeben, um öfter zu gewinnen (siehe die Tuning-Hinweise in [DEPLOY.md](DEPLOY.md)).
+
+Das ist ein Werkzeug, keine Finanzberatung. Lies nach, was es tut, prüfe den Contract,
+bevor du ihn freigibst, und nutze es auf eigenes Risiko.
+
+---
+
+## Die drei Dokumente
+
+| Datei | Wofür |
 |---|---|
-| **README.md** (this file) | What it is and the big picture. |
-| **[DEPLOY.md](DEPLOY.md)** | The exact, click-by-click walkthrough. Start here to actually run it. |
-| **[TECHNICAL.md](TECHNICAL.md)** | The deep dive: the diagnosis, the design, and how every claim was tested. |
+| **README** ([DE](README.md) · [EN](README.en.md)) | Was es ist und der Überblick. |
+| **[DEPLOY.md](DEPLOY.md)** | Die genaue Schritt-für-Schritt-Anleitung (englisch). Hier anfangen, um es wirklich auszuführen. |
+| **[TECHNICAL.md](TECHNICAL.md)** | Die technische Tiefe: Diagnose, Design und wie jede Behauptung getestet wurde (englisch). |
