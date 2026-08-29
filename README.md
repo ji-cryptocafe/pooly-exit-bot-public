@@ -1,5 +1,10 @@
 # pooly-exit-bot
 
+> 💚 **Want to support me?** Spread the word about my crypto-tax software
+> **[CryptoCafeTax](https://cryptocafetax.de)** — freely testable at
+> **[app.cryptocafetax.de](https://app.cryptocafetax.de)**. Need your country added
+> for tax support? Reach out and let me know.
+
 A small bot that automatically rescues money stuck in a **przUSDC** position
 (PoolTogether V5 "Prize USDC – Moonwell") on the Base network.
 
