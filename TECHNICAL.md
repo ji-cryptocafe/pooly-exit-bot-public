@@ -1,8 +1,8 @@
 # pooly-exit-bot — technical notes
 
-> New here? Start with the plain-English **[README](README.md)** and the step-by-step
-> **[DEPLOY](DEPLOY.md)** guide. This file is the deep dive: the diagnosis, the design
-> decisions, and how every claim was tested.
+> New here? Start with the plain-English **[README](README.en.md)** and the step-by-step
+> **[DEPLOY](DEPLOY.en.md)** guide (or the German **[README](README.md)** / **[DEPLOY](DEPLOY.md)**).
+> This file is the deep dive: the diagnosis, the design decisions, and how every claim was tested.
 
 Opportunistic exit from a stuck **przUSDC** (PoolTogether V5 "Prize USDC - Moonwell") position on Base.
 

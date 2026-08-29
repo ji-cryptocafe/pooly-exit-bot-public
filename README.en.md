@@ -61,7 +61,7 @@ through every command.
 
 ## How to do it — the short version
 
-Each step below links to the exact commands in **[DEPLOY.md](DEPLOY.md)**.
+Each step below links to the exact commands in **[DEPLOY.en.md](DEPLOY.en.md)**.
 Follow that guide top to bottom; this list is just the map.
 
 1. **Get the code onto your computer.**
@@ -104,7 +104,7 @@ beat almost anyone doing it manually. But be realistic:
 - If borrowers **never** repay, cash never returns, and no bot on earth can help.
   That part is out of everyone's hands.
 - Other people run similar bots. You can spend a little more on gas priority to win
-  more often (see the tuning notes in [DEPLOY.md](DEPLOY.md)).
+  more often (see the tuning notes in [DEPLOY.en.md](DEPLOY.en.md)).
 
 This is a tool, not financial advice. Read what it does, verify the contract before
 you approve it, and use it at your own risk.
@@ -116,5 +116,5 @@ you approve it, and use it at your own risk.
 | File | For |
 |---|---|
 | **README** ([EN](README.en.md) · [DE](README.md)) | What it is and the big picture. |
-| **[DEPLOY.md](DEPLOY.md)** | The exact, click-by-click walkthrough. Start here to actually run it. |
+| **[DEPLOY.en.md](DEPLOY.en.md)** | The exact, click-by-click walkthrough. Start here to actually run it. |
 | **[TECHNICAL.md](TECHNICAL.md)** | The deep dive: the diagnosis, the design, and how every claim was tested. |

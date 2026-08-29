@@ -1,52 +1,57 @@
-# Deploying, for someone who has never deployed anything
+# Deployment — für alle, die noch nie etwas deployt haben
 
-**Your secure machine installs nothing.** It only ever opens a browser and clicks one button.
-Everything else runs from the dev machine with a throwaway key that can never touch your position.
+**🇩🇪 Deutsch · 🇬🇧 [English](DEPLOY.en.md)**
 
-| Machine | Role | Needs installed |
+**Auf deinem sicheren Rechner wird nichts installiert.** Er öffnet nur einen Browser und
+klickt einen einzigen Knopf. Alles andere läuft auf dem Entwickler-Rechner mit einem
+Wegwerf-Schlüssel, der deine Position niemals berühren kann.
+
+| Rechner | Rolle | Was installiert sein muss |
 |---|---|---|
-| **Secure machine** (holds `0xYOUR_WALLET`) | Signs exactly ONE transaction, ever: the `approve`. | Nothing. A browser + your wallet extension. |
-| **Dev machine** (this repo) | Deploys the contract, runs the bot. | Already set up. |
-| **Throwaway key** (created below) | Pays gas for the deploy and the bot. | — |
+| **Sicherer Rechner** (hält `0xYOUR_WALLET`) | Unterschreibt genau EINE Transaktion, ein einziges Mal: das `approve`. | Nichts. Ein Browser + deine Wallet-Erweiterung. |
+| **Entwickler-Rechner** (dieses Repo) | Deployt den Contract, betreibt den Bot. | Bereits eingerichtet. |
+| **Wegwerf-Schlüssel** (unten erstellt) | Zahlt das Gas für Deployment und Bot. | — |
 
-The throwaway key is *only* a gas payer. It is never named inside the contract, and the
-contract can only ever send funds to the immutable `RECEIVER`. If it were stolen tomorrow,
-the attacker gets whatever ETH is left on it and nothing else.
+Der Wegwerf-Schlüssel ist *nur* ein Gas-Zahler. Er wird im Contract nirgends genannt, und der
+Contract kann Geld ausschließlich an den unveränderlichen `RECEIVER` senden. Würde er morgen
+gestohlen, bekäme der Angreifer nur das restliche ETH darauf und sonst nichts.
 
 ---
 
-## Costs (measured, Base at 0.005 gwei)
+## Kosten (gemessen, Base bei 0,005 gwei)
 
-| | gas | cost @ $4000/ETH |
+| | Gas | Kosten bei 4000 $/ETH |
 |---|---|---|
-| deploy the contract | 557,372 | **$0.011** |
-| your `approve` | ~46,000 | **$0.001** |
-| each successful grab | ~900,000 | **$0.018** |
-| each failed attempt | ~158,000 | **$0.003** |
+| Contract deployen | 557.372 | **0,011 $** |
+| dein `approve` | ~46.000 | **0,001 $** |
+| jeder erfolgreiche Grab | ~900.000 | **0,018 $** |
+| jeder fehlgeschlagene Versuch | ~158.000 | **0,003 $** |
 
-Budget ~0.003 ETH on the throwaway key. That is over a thousand attempts.
+Plane ~0,003 ETH auf dem Wegwerf-Schlüssel ein. Das reicht für über tausend Versuche.
 
 ---
 
-## Step 1 — create the throwaway key (dev machine)
+## Schritt 1 — Wegwerf-Schlüssel erstellen (Entwickler-Rechner)
 
-**Do not use MetaMask for this.** The bot needs a raw private key sitting in a plaintext file,
-and every MetaMask account is derived from your seed phrase. Exporting one doesn't leak the
-seed, but it puts a key from your main wallet family into a hot file for no reason. This
-generates a mathematically independent key instead:
+**Nutze dafür nicht MetaMask.** Der Bot braucht einen rohen Private Key in einer
+Klartext-Datei, und jedes MetaMask-Konto wird aus deiner Seed Phrase abgeleitet. Ein Export
+verrät zwar nicht die Seed, legt aber grundlos einen Schlüssel aus deiner Haupt-Wallet-Familie
+in eine „heiße" Datei. Der folgende Befehl erzeugt stattdessen einen mathematisch unabhängigen
+Schlüssel:
 
 ```bash
 cd pooly-exit-bot-public
 ./newkey.sh
 ```
 
-It writes the key straight into `.env` (chmod 600) and prints **only the address**. The
-private key is never displayed, so it never lands in your terminal scrollback or any
-transcript. Do not run bare `cast wallet new` — that prints the key to the screen.
+Er schreibt den Schlüssel direkt in `.env` (chmod 600) und gibt **nur die Adresse** aus. Der
+Private Key wird nie angezeigt, landet also nicht in deinem Terminal-Verlauf oder irgendeinem
+Transkript. Führe **nicht** einfach `cast wallet new` aus — das druckt den Schlüssel auf den
+Bildschirm.
 
-The same key is used for both the deploy and the bot; both jobs are just "pay gas".
+Derselbe Schlüssel wird für Deployment und Bot verwendet; beide Aufgaben sind nur „Gas zahlen".
 
-Then open `.env` and fill in the rest:
+Öffne dann `.env` und trage den Rest ein:
 
 ```
 BASE_RPC_URL=https://mainnet.base.org
@@ -55,158 +60,164 @@ RECEIVER_ADDRESS=0xYOUR_WALLET_ADDRESS
 MIN_RATE_BPS=9999
 ```
 
-(Leave `DEPLOYER_PRIVATE_KEY` / `BOT_PRIVATE_KEY` alone — `newkey.sh` already set them.)
+(`DEPLOYER_PRIVATE_KEY` / `BOT_PRIVATE_KEY` unangetastet lassen — `newkey.sh` hat sie bereits
+gesetzt.)
 
-### What this key can and cannot do
+### Was dieser Schlüssel kann und was nicht
 
-- **Can:** pay gas, deploy the contract, call `grab()`.
-- **Cannot:** touch your przUSDC, redirect the USDC, or change anything about the contract.
-  It is never named inside the contract. If it were stolen tomorrow the attacker gets the
-  leftover gas money and nothing else.
+- **Kann:** Gas zahlen, den Contract deployen, `grab()` aufrufen.
+- **Kann nicht:** dein przUSDC berühren, das USDC umleiten oder irgendetwas am Contract ändern.
+  Er wird im Contract nirgends genannt. Würde er morgen gestohlen, bekäme der Angreifer nur das
+  restliche Gas-Geld und sonst nichts.
 
-MetaMask's only involvement in this whole process is Step 2 (sending it gas) and Step 5
-(the approve).
+MetaMask ist im gesamten Ablauf nur an Schritt 2 (Gas senden) und Schritt 5 (das Approve)
+beteiligt.
 
-### Choosing RECEIVER — this is immutable, get it right
+### RECEIVER wählen — das ist unveränderlich, mach es richtig
 
-- **Same as OWNER** (`0xYOUR_WALLET`): the recovered USDC simply lands back in the wallet it
-  came from. Simplest, nothing new to manage.
-- **A hardware wallet**: better if you consider `0xYOUR_WALLET` exposed at all.
+- **Gleich wie OWNER** (`0xYOUR_WALLET`): Das zurückgeholte USDC landet einfach wieder in der
+  Wallet, aus der es kam. Am einfachsten, nichts Neues zu verwalten.
+- **Eine Hardware-Wallet**: besser, falls du `0xYOUR_WALLET` überhaupt als exponiert
+  betrachtest.
 
-It cannot be changed after deployment. Changing it means deploying again and re-approving.
+Nach dem Deployment lässt es sich nicht mehr ändern. Eine Änderung bedeutet: erneut deployen
+und erneut freigeben.
 
-## Step 2 — fund the throwaway key (secure machine, browser)
+## Schritt 2 — Wegwerf-Schlüssel auffüllen (sicherer Rechner, Browser)
 
-In MetaMask, send **0.003 ETH** to the address `newkey.sh` printed.
-Make sure the network is **Base**, not Ethereum mainnet.
+Sende in MetaMask **0,003 ETH** an die Adresse, die `newkey.sh` ausgegeben hat.
+Achte darauf, dass das Netzwerk **Base** ist, nicht Ethereum Mainnet.
 
-## Step 3 — deploy (dev machine)
+## Schritt 3 — deployen (Entwickler-Rechner)
 
 ```bash
 ./deploy.sh
 ```
 
-It shows you every value, simulates without spending, waits for you to type `YES`, deploys,
-then verifies the source on Basescan so you can read it in a browser. It ends by printing
-your contract address and the exact instructions for Step 4.
+Es zeigt dir jeden Wert an, simuliert ohne etwas auszugeben, wartet, bis du `YES` tippst,
+deployt und verifiziert dann den Quellcode auf Basescan, damit du ihn im Browser lesen kannst.
+Am Ende gibt es deine Contract-Adresse und die genauen Anweisungen für Schritt 4 aus.
 
-## Step 4 — verify before you trust it (secure machine, browser)
+## Schritt 4 — prüfen, bevor du ihm vertraust (sicherer Rechner, Browser)
 
-Open `https://basescan.org/address/<YOUR_EXITOR>#readContract` and confirm **all five**:
+Öffne `https://basescan.org/address/<DEIN_EXITOR>#readContract` und bestätige **alle fünf**:
 
 ```
 VAULT        = 0x7f5C2b379b88499aC2B997Db583f8079503f25b9
 ASSET        = 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913
 OWNER        = 0xYOUR_WALLET_ADDRESS
-RECEIVER     = <what you chose>
+RECEIVER     = <was du gewählt hast>
 MIN_RATE_BPS = 9999
 ```
 
-**If any value differs, stop. Do not approve.** This is the whole security check — once these
-five are right, the contract provably cannot send your money anywhere else.
+**Weicht ein Wert ab, halte an. Nicht freigeben.** Das ist die gesamte Sicherheitsprüfung —
+sobald diese fünf stimmen, kann der Contract dein Geld nachweislich an keinen anderen Ort
+senden.
 
-## Step 5 — approve (secure machine, browser)
+## Schritt 5 — freigeben (sicherer Rechner, Browser)
 
-Go to:
+Gehe zu:
 
 ```
 https://basescan.org/address/0x7f5C2b379b88499aC2B997Db583f8079503f25b9#writeContract
 ```
 
-- Click **Connect to Web3** and connect `0xYOUR_WALLET`.
-- Find **approve**, and enter:
-  - `spender` = your exitor address
-  - `amount` = `<your exact przUSDC balance, written with no decimal point>`
-- Click **Write** and confirm in your wallet.
+- Klicke **Connect to Web3** und verbinde `0xYOUR_WALLET`.
+- Suche **approve** und gib ein:
+  - `spender` = deine Exitor-Adresse
+  - `amount` = `<dein genauer przUSDC-Kontostand, ohne Dezimalpunkt geschrieben>`
+- Klicke **Write** und bestätige in deiner Wallet.
 
-przUSDC has 6 decimals, so drop the decimal point: a balance shown as `1000.000000 przUSDC`
-is entered as `1000000000`. Read your exact balance from your wallet or Basescan.
-**Approve exactly this, not unlimited.** It is all the bot ever needs, and it caps the
-blast radius at the position you are already trying to rescue.
+przUSDC hat 6 Nachkommastellen, lass also den Dezimalpunkt weg: Ein Kontostand, der als
+`1000.000000 przUSDC` angezeigt wird, wird als `1000000000` eingegeben. Deinen genauen
+Kontostand liest du aus deiner Wallet oder auf Basescan ab.
+**Genau diesen Betrag freigeben, nicht unbegrenzt.** Mehr braucht der Bot nie, und es begrenzt
+den möglichen Schaden auf genau die Position, die du ohnehin retten willst.
 
-To cancel later, repeat with `amount = 0`.
+Zum späteren Widerrufen: dasselbe noch einmal mit `amount = 0`.
 
-## Step 6 — run the bot (dev machine)
+## Schritt 6 — Bot starten (Entwickler-Rechner)
 
 ```bash
-npm run watch    # dry run: reports what it would do, sends nothing
+npm run watch    # Trockenlauf: meldet, was er tun würde, sendet nichts
 ```
 
-Confirm it prints `allowance ✅ set` and `vault … ✅ verified`. Then:
+Prüfe, dass `allowance ✅ set` und `vault … ✅ verified` erscheinen. Dann:
 
 ```bash
 npm run bot
 ```
 
-Leave it running. It exits by itself the moment the position hits zero.
+Lass ihn laufen. Er beendet sich von selbst, sobald die Position bei null ist.
 
-To keep it alive after you close the terminal:
+Um ihn nach dem Schließen des Terminals am Leben zu halten:
 
 ```bash
 nohup npm run bot > bot.log 2>&1 &
 tail -f bot.log
 ```
 
-Stop it with `pkill -f exit-bot`.
+Stoppen mit `pkill -f exit-bot`.
 
 ---
 
-## What you will see
+## Was du sehen wirst
 
-Idle (the normal state — could be days):
+Leerlauf (der Normalzustand — kann Tage dauern):
 
 ```
 [12:00:00] mUSDC cash 0.000001 USDC | available 0.00 USDC
 [12:00:00] polling every 500ms -- waiting for liquidity...
 ```
 
-When liquidity appears:
+Wenn Liquidität auftaucht:
 
 ```
 [14:23:11] LIQUIDITY: available 800.00 USDC | mUSDC cash 800.000001 USDC -> firing
 [14:23:11] ✅ GRABBED 800.00 USDC | total recovered 800.00 USDC | shares left <remaining> USDC
 ```
 
-`reverted (no liquidity by inclusion time)` means someone beat you to it. Costs ~$0.003.
-If you see it repeatedly, raise `PRIORITY_GWEI` in `.env` and restart.
+`reverted (no liquidity by inclusion time)` heißt, jemand war schneller. Kostet ~0,003 $.
+Wenn du das wiederholt siehst, erhöhe `PRIORITY_GWEI` in `.env` und starte neu.
 
 ---
 
-## When does it actually fire?
+## Wann feuert er eigentlich?
 
-Two gates, both must pass. There is **no upper limit** -- it always takes everything
-available, capped only by your remaining position.
+Zwei Tore, beide müssen passieren. Es gibt **keine Obergrenze** — er nimmt immer alles
+Verfügbare, begrenzt nur durch deine verbleibende Position.
 
-1. **`MIN_ASSETS_USDC`** (default `5`) -- a hard floor in dollars.
-2. **`MAX_GAS_PCT`** (default `2`) -- gas must stay under 2% of what the grab recovers.
-   This is the gate that matters if Base fees ever spike; the fixed floor alone would
-   quietly stop making sense.
+1. **`MIN_ASSETS_USDC`** (Standard `5`) — eine harte Untergrenze in Dollar.
+2. **`MAX_GAS_PCT`** (Standard `2`) — das Gas muss unter 2 % dessen bleiben, was der Grab
+   einbringt. Dieses Tor zählt, falls die Base-Gebühren je in die Höhe schießen; die feste
+   Untergrenze allein würde dann still ihren Sinn verlieren.
 
-Worst-case gas to fully exit a **$1,000** position, if *every* fill were exactly this size.
-It scales linearly — double the position and you double the grabs and the total gas, but the
-**% of position stays the same**:
+Worst-Case-Gas, um eine **1.000-$-Position** vollständig herauszuholen, wenn *jede* Teilzahlung
+genau diese Größe hätte. Es skaliert linear — verdopple die Position, und du verdoppelst Grabs
+und Gesamt-Gas, aber der **%-Anteil an der Position bleibt gleich**:
 
-| avg fill | grabs (per $1k) | total gas (per $1k) | % of position |
+| Ø Teilzahlung | Grabs (pro 1.000 $) | Gesamt-Gas (pro 1.000 $) | % der Position |
 |---|---|---|---|
-| $1 | 1000 | $18.00 | 1.80% |
-| $5 | 200 | $3.60 | 0.36% |
-| $10 | 100 | $1.80 | 0.18% |
-| $25 | 40 | $0.72 | 0.07% |
-| $100 | 10 | $0.18 | 0.02% |
+| 1 $ | 1000 | 18,00 $ | 1,80 % |
+| 5 $ | 200 | 3,60 $ | 0,36 % |
+| 10 $ | 100 | 1,80 $ | 0,18 % |
+| 25 $ | 40 | 0,72 $ | 0,07 % |
+| 100 $ | 10 | 0,18 $ | 0,02 % |
 
-`5` is a good default. Raising the floor does **not** get you bigger fills -- it just means
-small ones go to somebody else, and with ~13.16M USDC of competing claims the small fills
-are the ones you are most likely to actually win. Lower it to `1` if you would rather
-grind out 1.8% in gas than risk not exiting at all.
+`5` ist ein guter Standard. Die Untergrenze anzuheben bringt dir **keine** größeren
+Teilzahlungen — es bedeutet nur, dass kleine an jemand anderen gehen; und bei ~13,16 Mio. USDC
+an konkurrierenden Ansprüchen sind gerade die kleinen Teilzahlungen die, die du am ehesten
+tatsächlich gewinnst. Senke sie auf `1`, wenn du lieber 1,8 % an Gas abarbeitest, als das
+Risiko einzugehen, gar nicht herauszukommen.
 
 ---
 
-## If something goes wrong
+## Wenn etwas schiefgeht
 
-| Symptom | Fix |
+| Symptom | Lösung |
 |---|---|
-| `allowance ❌ ZERO` | Step 5 didn't land. Check the tx on Basescan. |
-| `refusing to run` on startup | On-chain VAULT/ASSET don't match. Do **not** approve. Redeploy. |
-| `insufficient funds` | Throwaway key is out of ETH. Send it more. |
-| Repeated reverts | Someone is faster. Raise `PRIORITY_GWEI` in `.env` and restart. |
-| Want to stop everything | `pkill -f exit-bot`, then `approve(exitor, 0)` on Basescan. |
+| `allowance ❌ ZERO` | Schritt 5 kam nicht durch. Prüfe die Tx auf Basescan. |
+| `refusing to run` beim Start | On-Chain-VAULT/ASSET passen nicht. **Nicht** freigeben. Neu deployen. |
+| `insufficient funds` | Der Wegwerf-Schlüssel hat kein ETH mehr. Schick ihm mehr. |
+| Wiederholte Reverts | Jemand ist schneller. Erhöhe `PRIORITY_GWEI` in `.env` und starte neu. |
+| Alles stoppen | `pkill -f exit-bot`, dann `approve(exitor, 0)` auf Basescan. |

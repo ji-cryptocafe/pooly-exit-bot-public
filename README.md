@@ -66,9 +66,8 @@ für Befehl durch alles.
 
 ## So geht's — die Kurzfassung
 
-Jeder Schritt verweist auf die genauen Befehle in **[DEPLOY.md](DEPLOY.md)**
-(englisch). Folge dieser Anleitung von oben nach unten; diese Liste ist nur die
-Übersicht.
+Jeder Schritt verweist auf die genauen Befehle in **[DEPLOY.md](DEPLOY.md)**.
+Folge dieser Anleitung von oben nach unten; diese Liste ist nur die Übersicht.
 
 1. **Hol den Code auf deinen Computer.**
    ```bash
@@ -125,5 +124,5 @@ bevor du ihn freigibst, und nutze es auf eigenes Risiko.
 | Datei | Wofür |
 |---|---|
 | **README** ([DE](README.md) · [EN](README.en.md)) | Was es ist und der Überblick. |
-| **[DEPLOY.md](DEPLOY.md)** | Die genaue Schritt-für-Schritt-Anleitung (englisch). Hier anfangen, um es wirklich auszuführen. |
+| **[DEPLOY.md](DEPLOY.md)** | Die genaue Schritt-für-Schritt-Anleitung. Hier anfangen, um es wirklich auszuführen. |
 | **[TECHNICAL.md](TECHNICAL.md)** | Die technische Tiefe: Diagnose, Design und wie jede Behauptung getestet wurde (englisch). |
